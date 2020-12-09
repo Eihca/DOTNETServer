@@ -101,29 +101,70 @@ namespace DOTNETServer
 
                 //extract params
                 Console.WriteLine(context.Request.Path);
-                var reader = new StreamReader(context.Request.Body);
-                var param = await reader.ReadToEndAsync();
-                Console.WriteLine(param);
-                List<string> urls = JsonConvert.DeserializeObject<List<string>>(param);
-                Console.WriteLine(urls);
+                var path = context.Request.Path;
 
-                NewsAggregator aggr = new NewsAggregator(6, urls);
+                if(path == "/news")
+                {
 
-                aggr.Run();
-                List<News> newslist = new List<News>();
-                newslist = aggr.getNews();
-                newslist.ForEach(Console.WriteLine);
-                /* News news = new News();
-                 news.company = "GMA";
-                 news.date = DateTime.Now.ToString();
-                 news.title = "Sample News" +param;
-                 news.link = "http://tryingthis.com";
-                 newslist.Add(news);*/
-                var json = JsonConvert.SerializeObject(newslist);
-                var data = Encoding.UTF8.GetBytes(json);
+                    var reader = new StreamReader(context.Request.Body);
+                    var param = await reader.ReadToEndAsync();
+                    Console.WriteLine(param);
+                    List<string> urls = JsonConvert.DeserializeObject<List<string>>(param);
+                    Console.WriteLine(urls);
 
-                //var data = System.Text.Encoding.UTF8.GetBytes("Hello World from the ASP.Net CORE!");
-                context.Response.Body.Write(data, 0, data.Length);
+                    NewsAggregator aggr = new NewsAggregator(6, urls);
+
+                    aggr.Run();
+                    List<News> newslist = new List<News>();
+                    newslist = aggr.getNews();
+                    newslist.ForEach(Console.WriteLine);
+                    /* News news = new News();
+                     news.company = "GMA";
+                     news.date = DateTime.Now.ToString();
+                     news.title = "Sample News" +param;
+                     news.link = "http://tryingthis.com";
+                     newslist.Add(news);*/
+                    var json = JsonConvert.SerializeObject(newslist);
+                    var data = Encoding.UTF8.GetBytes(json);
+
+                    //var data = System.Text.Encoding.UTF8.GetBytes("Hello World from the ASP.Net CORE!");
+                    context.Response.Body.Write(data, 0, data.Length);
+                }
+                else if(path == "/capitalize")
+                {
+
+                    var reader = new StreamReader(context.Request.Body);
+                    var param = await reader.ReadToEndAsync();
+                    Console.WriteLine(param);
+                    List<string> cap = JsonConvert.DeserializeObject<List<string>>(param);
+                    
+                    for(int c=0;c<cap.Count; c++)
+                    {
+                        cap[c] = cap[c].ToUpper();
+                    }
+
+                    var json = JsonConvert.SerializeObject(cap);
+                    var data = Encoding.UTF8.GetBytes(json);
+
+                    context.Response.Body.Write(data, 0, data.Length);
+                }
+                else if (path == "/home" || path == "/")
+                {
+                    var wel = "Welcome to News Parser";
+
+                    var data = Encoding.UTF8.GetBytes(wel);
+
+                    context.Response.Body.Write(data, 0, data.Length);
+                }
+                else
+                {
+                    var inv = "Invalid URL";
+                
+                    var data = Encoding.UTF8.GetBytes(inv);
+
+                    context.Response.Body.Write(data, 0, data.Length);
+                }
+
 
                 
             });
